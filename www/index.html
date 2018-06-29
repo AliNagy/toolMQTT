@@ -15,6 +15,73 @@
         <v-app>
             <v-content>
                 <v-container>
+                    <v-snackbar timeout=3000 top :color="this.notifySnackbar.color" :value="this.notifySnackbar.visibility">
+                        {{this.notifySnackbar.msg}}
+                    </v-snackbar>
+                    <v-expansion-panel expand>
+                        <v-expansion-panel-content>
+                            <div slot="header">Connection
+                                <v-icon :color="isConnected?'green':'red'">{{ isConnected ? 'fa-check-circle':'fa-times-circle' }}</v-icon>
+                            </div>
+                            <v-card>
+                                <v-layout>
+                                    <v-flex class="py-1 px-3" xs4>
+                                        <v-text-field v-model="request.host" label="Host"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs4>
+                                        <v-text-field v-model="request.port" label="Port"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs4>
+                                        <v-text-field v-model="request.client" label="Client ID"></v-text-field>
+                                    </v-flex>
+                                </v-layout>
+                                <v-layout>
+                                    <v-flex class="px-3" xs3>
+                                        <v-text-field v-model="request.user" label="Username"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="px-3" xs3>
+                                        <v-text-field v-model="request.pass" label="Password" type="password"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="px-3" xs2>
+                                        <v-text-field v-model="request.keepalive" label="Keep Alive"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="px-3" xs2>
+                                        <v-checkbox color="primary" v-model="request.clean" label="Clean Session"></v-checkbox>
+                                    </v-flex>
+                                    <v-flex class="px-3" xs2>
+                                        <v-btn :color="isConnected?'error':'primary'" @click="attemptConnection">{{isConnected?'Disconnect':'Connect'}}</v-btn>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card>
+                            <v-layout>
+                                <v-flex class="px-3 py-3" xs12>
+                                    <v-expansion-panel>
+                                        <v-expansion-panel-content>
+                                            <div slot="header">Last Will Options</div>
+                                            <v-card>
+                                                <v-layout>
+                                                    <v-flex class="py-1 px-3" xs4>
+                                                        <v-text-field v-model="request.lastwill.topic" label="Topic"></v-text-field>
+                                                    </v-flex>
+                                                    <v-flex class="py-1 px-3" xs4>
+                                                        <v-select :items="qosValues" v-model="request.lastwill.qos" label="QoS"></v-select>
+                                                    </v-flex>
+                                                    <v-flex class="py-1 px-3" xs4>
+                                                        <v-checkbox color="primary" v-model="request.lastwill.retain" label="Retain"></v-checkbox>
+                                                    </v-flex>
+                                                </v-layout>
+                                                <v-layout>
+                                                    <v-flex class="py-1 px-3">
+                                                        <v-text-field v-model="request.lastwill.msg" type="textbox" label="Message"></v-text-field>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-card>
+                                        </v-expansion-panel-content>
+                                    </v-expansion-panel>
+                                </v-flex>
+                            </v-layout>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
                 </v-container>
             </v-content>
         </v-app>
