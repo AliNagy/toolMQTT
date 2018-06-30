@@ -13,7 +13,7 @@ new Vue(
                 request: {
                     host: 'test.mosquitto.org',
                     port: 8080,
-                    client: null,
+                    client: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
                     user: null,
                     pass: null,
                     keepalive: 60,
@@ -32,29 +32,49 @@ new Vue(
             attemptConnection: function () {
                 if (this.connected) {
                     if (this.client) {
-                        this.client.end(false)
+                        this.client.end(false, () => {
+                            this.snackbarState("Disconnected!", "info")
+                        })
                     }
                 } else {
                     const uri = "mqtt://" + this.request.host + ":" + this.request.port
-                    this.client = mqtt.connect(uri)
+                    const options = {
+                        clientId: this.request.client,
+                        username: this.request.user,
+                        password: this.request.pass,
+                        keepalive: Number(this.request.keepalive),
+                        clean: this.request.clean
+                    }
+                    if (this.request.lastwill.msg && this.request.lastwill.topic) {
+                        options.will = {
+                            topic: this.request.lastwill.topic,
+                            qos: Number(this.request.lastwill.qos),
+                            retain: this.request.lastwill.retain,
+                            payload: this.request.lastwill.msg
+                        }
+                    }
+                    this.client = mqtt.connect(uri, options)
                     this.registerEvents()
                 }
             },
             registerEvents: function () {
                 this.client.on('connect', () => {
-                    this.snackbarState("Successfully connected!", "success")
+                    this.snackbarState("Connected!", "success")
                     this.connected = true
                 })
                 this.client.on('end', () => {
-                    this.snackbarState("Successfully disconnected!", "error")
                     this.connected = false
+                })
+                this.client.on('error', (err) => {
+                    this.snackbarState("Error!", "error")
+                    this.client.end()
                 })
             },
             snackbarState: function (msg, color, state) {
                 this.notifySnackbar.msg = msg
                 this.notifySnackbar.color = color
                 this.notifySnackbar.visibility = true
-                setTimeout(()=>{ this.notifySnackbar.visibility = false}, 1000)
+                setTimeout(() => { this.notifySnackbar.visibility = false }, 2000)
             }
         },
         computed: {

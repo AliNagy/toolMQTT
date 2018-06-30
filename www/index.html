@@ -15,7 +15,7 @@
         <v-app>
             <v-content>
                 <v-container>
-                    <v-snackbar timeout=3000 top :color="this.notifySnackbar.color" :value="this.notifySnackbar.visibility">
+                    <v-snackbar top right :color="this.notifySnackbar.color" :value="this.notifySnackbar.visibility">
                         {{this.notifySnackbar.msg}}
                     </v-snackbar>
                     <v-expansion-panel expand>
