@@ -129,14 +129,20 @@ new Vue(
             },
             deleteItem: function (item) {
                 const index = this.dataContainer.subscriptions.indexOf(item)
+                confirm('Are you sure you wish to unsubscribe from this topic?') && this.dataContainer.subscriptions.splice(index, 1)
                 this.client.unsubscribe(item.topic, (err) => {
                     if (err) {
                         this.snackbarState("Failed to unsubscribe!", "error")
                     } else {
                         this.snackbarState("Unsubscribed from " + item.topic, "info")
+                        for(var _index in this.dataContainer.messages){
+                            if(parser.isParent(this.dataContainer.messages[_index].topic, item.topic)){
+                                this.dataContainer.messages.splice(_index, 1)
+                            }
+                        }
                     }
                 })
-                confirm('Are you sure you wish to unsubscribe from this topic?') && this.dataContainer.subscriptions.splice(index, 1)
+
             },
             registerEvents: function () {
                 this.client.on('connect', () => {
@@ -145,13 +151,15 @@ new Vue(
                 })
                 this.client.on('end', () => {
                     this.connected = false
+                    this.dataContainer.subscriptions = []
+                    this.dataContainer.messages = []
                 })
                 this.client.on('error', (err) => {
                     this.snackbarState("Error!", "error")
                     this.client.end()
                 })
                 this.client.on('message', (topic, message, packet) => {
-                    this.dataContainer.messages.push({topic: topic, msg: String(message), qos: packet.qos, retain: packet.retain})
+                    this.dataContainer.messages.push({ topic: topic, msg: String(message), qos: packet.qos, retain: packet.retain })
                 })
             },
             snackbarState: function (msg, color, state) {
