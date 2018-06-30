@@ -3,14 +3,14 @@ new Vue(
         el: '#app',
         data: function () {
             return ({
-                notifySnackbar: {
+                notifySnackbar: {//This controls the snackbar message
                     msg: null,
                     color: null,
                     visibility: false
                 },
-                client: null,
+                client: null,//Contains the MQTT client
                 connected: false,
-                request: {
+                request: {//Connection object
                     host: 'mqtt://test.mosquitto.org:8080',
                     client: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
                     user: null,
@@ -25,7 +25,7 @@ new Vue(
                     }
                 },
                 qosValues: ["0", "1", "2"],
-                dataContainer: {
+                dataContainer: {//Contains all messages/subscriptions
                     subscriptions: [],
                     messages: []
                 },
@@ -66,22 +66,22 @@ new Vue(
         },
         methods: {
             attemptConnection: function () {
-                if (this.connected) {
+                if (this.connected) {//Already connected? Must be disconnecting(same button, different looks!)
                     if (this.client) {
                         this.client.end(false, () => {
                             this.snackbarState("Disconnected!", "info")
                         })
                     }
                 } else {
-                    const uri = this.request.host
+                    const uri = this.request.host//obtain the URI input 
                     const options = {
                         clientId: this.request.client,
                         username: this.request.user,
                         password: this.request.pass,
                         keepalive: Number(this.request.keepalive),
                         clean: this.request.clean
-                    }
-                    if (this.request.lastwill.msg && this.request.lastwill.topic) {
+                    }//Reconstruct the options object to match requirement
+                    if (this.request.lastwill.msg && this.request.lastwill.topic) {//Last will? Throw it in!
                         options.will = {
                             topic: this.request.lastwill.topic,
                             qos: Number(this.request.lastwill.qos),
@@ -89,13 +89,13 @@ new Vue(
                             payload: this.request.lastwill.msg
                         }
                     }
-                    this.client = mqtt.connect(uri, options)
+                    this.client = mqtt.connect(uri, options)//Lets connect.
                     this.registerEvents()
                 }
             },
-            addTopic: function () {
+            addTopic: function () {//Function of the add topic button
                 if (this.topic.topic == "") {
-                    this.snackbarState("Please add the topic!", "info")
+                    this.snackbarState("Please add the topic!", "info")//Empty? Stop.
                     return
                 }
                 this.client.subscribe(this.topic.topic, { qos: Number(this.topic.qos) }, (err, granted) => {
@@ -106,10 +106,10 @@ new Vue(
                     }
                 })
                 var item = Object.assign({}, this.topic)
-                this.dataContainer.subscriptions.push(item)
+                this.dataContainer.subscriptions.push(item)//Throw that topic into the subscriptions container
             },
-            publishMsg: function () {
-                if (this.publish.topic == "" || this.publish.msg == "") {
+            publishMsg: function () {//Function of the publish message button
+                if (this.publish.topic == "" || this.publish.msg == "") {//You need a topic and a message!
                     this.snackbarState("Please add the topic and message!", "info")
                     return
                 }
@@ -127,7 +127,7 @@ new Vue(
                 })
 
             },
-            deleteItem: function (item) {
+            deleteItem: function (item) {//Deleting a subscribed item
                 const index = this.dataContainer.subscriptions.indexOf(item)
                 confirm('Are you sure you wish to unsubscribe from this topic?') && this.dataContainer.subscriptions.splice(index, 1)
                 this.client.unsubscribe(item.topic, (err) => {
@@ -135,7 +135,7 @@ new Vue(
                         this.snackbarState("Failed to unsubscribe!", "error")
                     } else {
                         this.snackbarState("Unsubscribed from " + item.topic, "info")
-                        for (var _index in this.dataContainer.messages) {
+                        for (var _index in this.dataContainer.messages) {//This is to remove all 'child' messages of the subscription
                             if (parser.isParent(this.dataContainer.messages[_index].topic, item.topic)) {
                                 this.dataContainer.messages.splice(_index, 1)
                             }
@@ -143,7 +143,7 @@ new Vue(
                     }
                 })
             },
-            registerEvents: function () {
+            registerEvents: function () {//Register the events for the client everytime it connects
                 this.client.on('connect', () => {
                     this.snackbarState("Connected!", "success")
                     this.connected = true
@@ -157,11 +157,11 @@ new Vue(
                     this.snackbarState("Error!", "error")
                     this.client.end()
                 })
-                this.client.on('message', (topic, message, packet) => {
+                this.client.on('message', (topic, message, packet) => {//A new message obtained? Push it in!
                     this.dataContainer.messages.push({ topic: topic, msg: String(message), qos: packet.qos, retain: packet.retain })
                 })
             },
-            snackbarState: function (msg, color, state) {
+            snackbarState: function (msg, color) {//Just controls the snackbar
                 this.notifySnackbar.msg = msg
                 this.notifySnackbar.color = color
                 this.notifySnackbar.visibility = true
