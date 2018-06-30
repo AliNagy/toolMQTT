@@ -135,14 +135,13 @@ new Vue(
                         this.snackbarState("Failed to unsubscribe!", "error")
                     } else {
                         this.snackbarState("Unsubscribed from " + item.topic, "info")
-                        for(var _index in this.dataContainer.messages){
-                            if(parser.isParent(this.dataContainer.messages[_index].topic, item.topic)){
+                        for (var _index in this.dataContainer.messages) {
+                            if (parser.isParent(this.dataContainer.messages[_index].topic, item.topic)) {
                                 this.dataContainer.messages.splice(_index, 1)
                             }
                         }
                     }
                 })
-
             },
             registerEvents: function () {
                 this.client.on('connect', () => {
