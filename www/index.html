@@ -81,6 +81,47 @@
                                 </v-flex>
                             </v-layout>
                         </v-expansion-panel-content>
+                        <v-expansion-panel-content>
+                            <div slot="header">Topics/Subscriptions</div>
+                            <v-card>
+                                <v-layout>
+                                    <v-flex class="py-1 px-3" xs5>
+                                        <v-text-field v-model="topic.topic" label="Topic"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs5>
+                                        <v-select :items="qosValues" v-model="topic.qos" label="QoS"></v-select>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs2>
+                                        <v-btn color="primary" @click="addTopic" :disabled="(!this.connected)">Add Topic</v-btn>
+                                    </v-flex>
+                                </v-layout>
+                                <v-layout>
+                                    <v-flex class="px-3 py-3" xs12>
+                                        <v-expansion-panel>
+                                            <v-expansion-panel-content>
+                                                <div slot="header">Subscribed topics</div>
+                                                <v-card>
+                                                    <v-data-table :headers="headers.subscriptions" :items="dataContainer.subscriptions" hide-actions class="elevation-1" :pagination.sync="pagination.subscriptions">
+                                                        <template slot="items" slot-scope="props">
+                                                            <td>{{ props.item.topic }}</td>
+                                                            <td>{{ props.item.qos }}</td>
+                                                            <td>
+                                                                <v-btn icon class="mx-3" @click="deleteItem(props.item)">
+                                                                    <v-icon color="pink">delete</v-icon>
+                                                                </v-btn>
+                                                            </td>
+                                                        </template>
+                                                    </v-data-table>
+                                                    <div class="text-xs-center pt-2">
+                                                        <v-pagination v-model="pagination.subscriptions.page" :length="subPages"></v-pagination>
+                                                    </div>
+                                                </v-card>
+                                            </v-expansion-panel-content>
+                                        </v-expansion-panel>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card>
+                        </v-expansion-panel-content>
                     </v-expansion-panel>
                 </v-container>
             </v-content>

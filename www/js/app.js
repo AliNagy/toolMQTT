@@ -26,6 +26,37 @@ new Vue(
                     }
                 },
                 qosValues: ["0", "1", "2"],
+                dataContainer: {
+                    subscriptions: [],
+                    messages: []
+                },
+                topic: {
+                    topic: "test/#",
+                    qos: "0"
+                },
+                pagination: {
+                    subscriptions: {},
+                    messages: {}
+                },
+                headers: {
+                    subscriptions: [
+                        {
+                            text: "Topic",
+                            align: 'left',
+                            sortable: false,
+                            value: 'topic'
+                        }, {
+                            text: "QoS",
+                            align: 'left',
+                            value: "qos",
+                            sortable: false
+                        }, {
+                            text: "Unsubscribe",
+                            align: 'left',
+                            sortable: false
+                        }
+                    ]
+                }
             })
         },
         methods: {
@@ -57,6 +88,32 @@ new Vue(
                     this.registerEvents()
                 }
             },
+            addTopic: function () {
+                if(this.topic.topic == ""){
+                    this.snackbarState("Please add the topic!", "info")
+                    return
+                }
+                this.client.subscribe(this.topic.topic, { qos: Number(this.topic.qos) }, (err, granted) => {
+                    if (err) {
+                        this.snackbarState("Failed to subscribe!", "error")
+                    } else if (granted) {
+                        this.snackbarState("Subscribed to " + this.topic.topic, "info")
+                    }
+                })
+                var item = Object.assign({}, this.topic)
+                this.dataContainer.subscriptions.push(item)
+            },
+            deleteItem: function (item) {
+                const index = this.dataContainer.subscriptions.indexOf(item)
+                this.client.unsubscribe(item.topic, (err) => {
+                    if (err) {
+                        this.snackbarState("Failed to unsubscribe!", "error")
+                    } else {
+                        this.snackbarState("Unsubscribed from " + item.topic, "info")
+                    }
+                })
+                confirm('Are you sure you wish to unsubscribe from this topic?') && this.dataContainer.subscriptions.splice(index, 1)
+            },
             registerEvents: function () {
                 this.client.on('connect', () => {
                     this.snackbarState("Connected!", "success")
@@ -78,6 +135,12 @@ new Vue(
             }
         },
         computed: {
+            subPages() {
+                if (this.pagination.subscriptions.rowsPerPage == null ||
+                    this.pagination.subscriptions.totalItems == null
+                ) return 0
+                return Math.ceil(this.pagination.subscriptions.totalItems / this.pagination.subscriptions.rowsPerPage)
+            },
             isConnected: function () {
                 if (this.connected) return true
                 else return false
