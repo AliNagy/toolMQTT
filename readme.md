@@ -1,4 +1,5 @@
-prequisities: node.js + npm
+prequisities: 
+    node.js + npm
 
 To locally setup the application:
 
