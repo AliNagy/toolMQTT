@@ -11,8 +11,7 @@ new Vue(
                 client: null,
                 connected: false,
                 request: {
-                    host: 'test.mosquitto.org',
-                    port: 8080,
+                    host: 'mqtt://test.mosquitto.org:8080',
                     client: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
                     user: null,
                     pass: null,
@@ -33,6 +32,12 @@ new Vue(
                 topic: {
                     topic: "test/#",
                     qos: "0"
+                },
+                publish: {
+                    topic: "test/1",
+                    qos: "0",
+                    retain: false,
+                    msg: ""
                 },
                 pagination: {
                     subscriptions: {},
@@ -68,7 +73,7 @@ new Vue(
                         })
                     }
                 } else {
-                    const uri = "mqtt://" + this.request.host + ":" + this.request.port
+                    const uri = this.request.host
                     const options = {
                         clientId: this.request.client,
                         username: this.request.user,
@@ -89,7 +94,7 @@ new Vue(
                 }
             },
             addTopic: function () {
-                if(this.topic.topic == ""){
+                if (this.topic.topic == "") {
                     this.snackbarState("Please add the topic!", "info")
                     return
                 }
@@ -102,6 +107,25 @@ new Vue(
                 })
                 var item = Object.assign({}, this.topic)
                 this.dataContainer.subscriptions.push(item)
+            },
+            publishMsg: function () {
+                if (this.publish.topic == "" || this.publish.msg == "") {
+                    this.snackbarState("Please add the topic and message!", "info")
+                    return
+                }
+                const options = {
+                    qos: Number(this.publish.qos),
+                    retain: this.publish.retain,
+                }
+                this.client.publish(this.publish.topic, this.publish.msg, options, (err) => {
+                    if (err) {
+                        console.log(err)
+                        this.snackbarState("Failed to publish!", "error")
+                    } else {
+                        this.snackbarState("Successfully published!", "info")
+                    }
+                })
+
             },
             deleteItem: function (item) {
                 const index = this.dataContainer.subscriptions.indexOf(item)
@@ -125,6 +149,10 @@ new Vue(
                 this.client.on('error', (err) => {
                     this.snackbarState("Error!", "error")
                     this.client.end()
+                })
+                this.client.on('message', (topic, message, packet) => {
+                    this.dataContainer.messages.push({topic: topic, msg: String(message), qos: packet.qos, retain: packet.retain})
+                    console.log(packet)
                 })
             },
             snackbarState: function (msg, color, state) {

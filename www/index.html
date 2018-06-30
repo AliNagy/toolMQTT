@@ -25,13 +25,10 @@
                             </div>
                             <v-card>
                                 <v-layout>
-                                    <v-flex class="py-1 px-3" xs4>
+                                    <v-flex class="py-1 px-3" xs6>
                                         <v-text-field v-model="request.host" label="Host"></v-text-field>
                                     </v-flex>
-                                    <v-flex class="py-1 px-3" xs4>
-                                        <v-text-field v-model="request.port" label="Port"></v-text-field>
-                                    </v-flex>
-                                    <v-flex class="py-1 px-3" xs4>
+                                    <v-flex class="py-1 px-3" xs6>
                                         <v-text-field v-model="request.client" label="Client ID"></v-text-field>
                                     </v-flex>
                                 </v-layout>
@@ -118,6 +115,53 @@
                                                 </v-card>
                                             </v-expansion-panel-content>
                                         </v-expansion-panel>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card>
+                        </v-expansion-panel-content>
+                        <v-expansion-panel-content>
+                            <div slot="header">Publish/Subscribe</div>
+                            <v-card>
+                                <v-layout>
+                                    <v-flex class="py-1 px-3" xs4>
+                                        <v-text-field v-model="publish.topic" label="Topic"></v-text-field>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs4>
+                                        <v-select :items="qosValues" v-model="publish.qos" label="QoS"></v-select>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs2>
+                                        <v-checkbox color="primary" v-model="publish.retain" label="Retain"></v-checkbox>
+                                    </v-flex>
+                                    <v-flex class="py-1 px-3" xs2>
+                                        <v-btn color="primary" @click="publishMsg" :disabled="!this.connected">Publish</v-btn>
+                                    </v-flex>
+                                </v-layout>
+                                <v-layout>
+                                    <v-flex class="py-1 px-3">
+                                        <v-text-field v-model="publish.msg" type="textbox" label="Message"></v-text-field>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card>
+                        </v-expansion-panel-content>
+                        <v-expansion-panel-content>
+                            <div slot="header">Messages</div>
+                            <v-card>
+                                <v-layout>
+                                    <v-flex class="px-3 py-3" xs12>
+                                        <v-data-iterator :items="dataContainer.messages" :pagination-sync="pagination.messages">
+                                            <v-flex slot="item" slot-scope="props" elevation-2 class="my-3">
+                                                <v-card>
+                                                    <v-card-title>
+                                                        <v-flex xs4>Topic: {{props.item.topic}}</v-flex>
+                                                        <v-flex xs4>QoS: {{props.item.qos}}</v-flex>
+                                                        <v-flex xs4>Retain: {{props.item.retain}}</v-flex>
+                                                    </v-card-title>
+                                                    <v-card-text>
+                                                        <p>{{props.item.msg}}</p>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-flex>
+                                        </v-data-iterator>
                                     </v-flex>
                                 </v-layout>
                             </v-card>
