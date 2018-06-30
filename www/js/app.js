@@ -152,7 +152,6 @@ new Vue(
                 })
                 this.client.on('message', (topic, message, packet) => {
                     this.dataContainer.messages.push({topic: topic, msg: String(message), qos: packet.qos, retain: packet.retain})
-                    console.log(packet)
                 })
             },
             snackbarState: function (msg, color, state) {
