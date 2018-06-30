@@ -135,7 +135,7 @@ new Vue(
                         this.snackbarState("Failed to unsubscribe!", "error")
                     } else {
                         this.snackbarState("Unsubscribed from " + item.topic, "info")
-                        for (var _index in this.dataContainer.messages) {//This is to remove all 'child' messages of the subscription
+                        for (_index = this.dataContainer.messages.length - 1; _index >= 0; _index--) {//This is to remove all 'child' messages of the subscription
                             if (parser.isParent(this.dataContainer.messages[_index].topic, item.topic)) {
                                 this.dataContainer.messages.splice(_index, 1)
                             }
